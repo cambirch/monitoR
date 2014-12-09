@@ -7,19 +7,28 @@ using System.Drawing;
 using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using monitoR.Service.JobListeners;
 using Microsoft.Management.Infrastructure;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Quartz;
+using Quartz.Impl.Matchers;
 
 namespace monitoR.Service
 {
-    public partial class Config : Form
+    partial class Config : Form
     {
-        public Config() {
+        private readonly IScheduler _scheduler;
+
+        public Config(IScheduler scheduler, UIJobListener jobListener) {
             InitializeComponent();
+            _scheduler = scheduler;
+
+            _scheduler.ListenerManager.AddJobListener(jobListener, KeyMatcher<JobKey>.KeyEquals(new JobKey("checkStoragePoolHealth", "group")));
         }
 
         private void button1_Click(object sender, EventArgs e) {
