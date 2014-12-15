@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
+using System.Net;
+using System.Net.Mail;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,12 +11,18 @@ using System.Windows.Forms;
 using Autofac;
 using Autofac.Core;
 using Autofac.Extras.Quartz;
+using ConfigR;
+using FluentEmail;
+using monitoR.Service.DebugObjects;
+using monitoR.Service.Interfaces;
 using monitoR.Service.JobListeners;
 using monitoR.Service.Jobs;
-using monitoR.Service.ObjectInterfaces;
+using monitoR.Service.PSObjects;
 using monitoR.Service.Utilities;
+using Ploeh.AutoFixture;
 using Quartz;
 using Quartz.Impl;
+using Quartz.Impl.Matchers;
 using Topshelf;
 
 namespace monitoR.Service
@@ -37,6 +45,9 @@ namespace monitoR.Service
             ITrigger trigger = TriggerBuilder.Create().WithIdentity("trigger1", "group").StartNow().WithSimpleSchedule(x => x.WithIntervalInSeconds(10).RepeatForever()).Build();
             scheduler.ScheduleJob(job, trigger);
 
+            // Add the listener
+            var listener = container.Resolve<EmailNotifyJobListener>();
+            scheduler.ListenerManager.AddJobListener(listener, KeyMatcher<JobKey>.KeyEquals(new JobKey("checkStoragePoolHealth", "group")));
 
             //HostFactory.Run(x => {
             //                    x.Service<App>();
@@ -67,8 +78,24 @@ namespace monitoR.Service
 
             builder.RegisterType<Config>().AsSelf().SingleInstance();
             builder.RegisterType<UIJobListener>().AsSelf();
+            builder.RegisterType<EmailNotifyJobListener>().AsSelf().SingleInstance();
 
-            builder.Register<IEnumerable<StoragePool>>((c, p) => { return Powershell.GetStoragePool(); }).AsSelf();
+#if DEBUG
+            var fixture = new Ploeh.AutoFixture.Fixture();
+
+            builder.Register<IEnumerable<IStoragePool>>((c, p) => { return fixture.CreateMany<DebugStoragePool>(); }).AsSelf();
+#else
+            builder.Register<IEnumerable<IStoragePool>>((c, p) => { return Powershell.GetStoragePool(); }).AsSelf();
+#endif
+
+            // Setup the e-mail settings
+            builder.Register<SmtpClient>((c, p) => {
+                                             var smtpClient = ConfigR.Config.Global.Get<SmtpClient>("smtp");
+                                             return smtpClient;
+                                         });
+            builder.Register<FluentEmail.Email>((c, p) => {
+                                                    return new Email(c.Resolve<SmtpClient>(), ConfigR.Config.Global.Get<string>("fromEmail"));
+                                                }).AsSelf();
 
             return DiContainer = builder.Build();
         }

@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using monitoR.Service.Interfaces;
 using Microsoft.Management.Infrastructure;
 
-namespace monitoR.Service.ObjectInterfaces
+namespace monitoR.Service.PSObjects
 {
-    enum DiskHealthStatus
-    {
-        Healthy = 0,
-    }
 
-    class StoragePool
+    class StoragePool : IStoragePool
     {
         private readonly CimInstance _storagePoolInstance;
         public StoragePool(CimInstance storagePoolInstance) {

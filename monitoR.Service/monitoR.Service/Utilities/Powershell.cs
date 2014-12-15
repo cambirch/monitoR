@@ -5,7 +5,8 @@ using System.Linq;
 using System.Management.Automation;
 using System.Text;
 using System.Threading.Tasks;
-using monitoR.Service.ObjectInterfaces;
+using monitoR.Service.Interfaces;
+using monitoR.Service.PSObjects;
 using Microsoft.Management.Infrastructure;
 using Newtonsoft.Json;
 
@@ -14,7 +15,7 @@ namespace monitoR.Service.Utilities
     static class Powershell
     {
 
-        public static IEnumerable<StoragePool> GetStoragePool() {
+        public static IEnumerable<IStoragePool> GetStoragePool() {
             return ExecutePS("get-storagepool")
                 .Where(f => f != null && (f.BaseObject is CimInstance))
                 .Select(f => new StoragePool((CimInstance)f.BaseObject))

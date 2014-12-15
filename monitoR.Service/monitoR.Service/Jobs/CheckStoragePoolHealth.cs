@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using monitoR.Service.ObjectInterfaces;
+using monitoR.Service.Interfaces;
 using Quartz;
 
 namespace monitoR.Service.Jobs
 {
     class CheckStoragePoolHealth : IJob
     {
-        private readonly Func<IEnumerable<StoragePool>> _getStoragePool;
+        private readonly Func<IEnumerable<IStoragePool>> _getStoragePool;
  
-        public CheckStoragePoolHealth(Func<IEnumerable<StoragePool>> getStoragePool) {
+        public CheckStoragePoolHealth(Func<IEnumerable<IStoragePool>> getStoragePool) {
             _getStoragePool = getStoragePool;
         }
 
@@ -34,7 +34,10 @@ namespace monitoR.Service.Jobs
 
             var storagePools = _getStoragePool();
 
-            var isAnyUnhealthy = storagePools.Any(f => !f.IsPrimordial && f.HealthStatus != DiskHealthStatus.Healthy);
+            var isAnyUnhealthy = storagePools.Any(f => {
+                Console.WriteLine("Val: " + f.HealthStatus.ToString());
+                                                      return !f.IsPrimordial && f.HealthStatus != DiskHealthStatus.Healthy;
+                                                  });
 
             context.Put("anyUnhealthy", isAnyUnhealthy);
 

@@ -34,8 +34,11 @@ namespace monitoR.Service.JobListeners
 
             var configForm = _configForm.Value;
 
-            configForm.label1.Text = DateTime.Now.ToString(CultureInfo.InvariantCulture);
-            configForm.label2.Text = "Is Any Unhealthy: " + context.Get("anyUnhealthy").ToString();
+            configForm.label1.BeginInvoke((Action)(() => {
+                                                       configForm.label1.Text = DateTime.Now.ToString(CultureInfo.InvariantCulture);
+                                                       configForm.label2.Text = "Is Any Unhealthy: " + context.Get("anyUnhealthy").ToString();
+                                                   }));
+
         }
 
         public string Name {
