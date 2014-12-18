@@ -56,9 +56,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Nortal.Utilities.TaskSchedulerEngine">
-      <HintPath>..\packages\Nortal.Utilities.TaskSchedulerEngine.0.9.0\lib\net40-Client\Nortal.Utilities.TaskSchedulerEngine.dll</HintPath>
-    </Reference>
     <Reference Include="Ploeh.AutoFixture">
       <HintPath>..\packages\AutoFixture.3.21.1\lib\net40\Ploeh.AutoFixture.dll</HintPath>
     </Reference>
@@ -106,8 +103,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App.cs" />
-    <Compile Include="CheckHardDriveStatusTask.cs" />
     <Compile Include="Config.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -135,10 +130,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="LICENSE.txt" />
-    <Content Include="NOTICE.txt" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Config.resx">

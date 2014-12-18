@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ConfigR;
 using Quartz;
 using FluentEmail;
 
@@ -37,7 +38,7 @@ namespace monitoR.Service.JobListeners
                                                                 }
                                                             });
 
-                var email = GetEmailCreator().To("cam.birch@gmail.com", "Cam Birch")
+                var email = GetEmailCreator().To(ConfigR.Config.Global.Get<string>("toEmail"))
                                              .Subject("Status Change on Storage Pool Monitoring: " + statusToString(result))
                                              .Body("test")
                                              .HighPriority()
