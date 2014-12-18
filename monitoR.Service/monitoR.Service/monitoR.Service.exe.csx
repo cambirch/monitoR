@@ -14,4 +14,5 @@ var smtpClient = new SmtpClient {
 // Add the actual configuration setting so it can be used in the application itself
 Add("smtp", smtpClient);
 Add("fromEmail", "cam.birch@gmail.com");
+Add("toEmail", "cam.birch@gmail.com");
 		
