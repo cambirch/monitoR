@@ -1,0 +1,21 @@
+﻿@{
+    // monitoR.Service.Interfaces.IPoolStateChangeModel
+
+    var healthStatus = "";
+    if (Model.IsFailureState) {
+        healthStatus = "Warning / Failure State";
+    } else {
+        healthStatus = "Healthy";
+    }
+
+    ViewBag.Subject = "Storage Pool State Change - " + healthStatus;
+    if (Model.IsFailureState) {
+        ViewBag.IsHighPriority = true;
+    }
+}
+<p>
+    @Model.NewHealthStatus
+</p>
+<p>
+    @Model.IsFailureState
+</p>

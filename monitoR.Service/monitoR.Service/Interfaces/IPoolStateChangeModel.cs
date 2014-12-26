@@ -6,9 +6,13 @@ using System.Threading.Tasks;
 
 namespace monitoR.Service.Interfaces
 {
+    interface IPoolStateChangeModel
+    {
 
-    public enum DiskHealthStatus {
-        Healthy = 0,
-        Warning = 1,
+        DiskHealthStatus NewHealthStatus { get; set; }
+
+        bool IsFailureState { get; set; }
+
+
     }
 }

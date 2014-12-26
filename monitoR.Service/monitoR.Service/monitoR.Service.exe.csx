@@ -1,5 +1,6 @@
 ﻿
 using System.Net.Mail;
+using System.IO;
 
 // Initialize a SMTP client with the setup we want to use
 //  Fully configurable in any way that .NET will allow
@@ -15,4 +16,7 @@ var smtpClient = new SmtpClient {
 Add("smtp", smtpClient);
 Add("fromEmail", "cam.birch@gmail.com");
 Add("toEmail", "cam.birch@gmail.com");
-		
+
+
+// Templates
+Add("template-stateChange", File.ReadAllText("stateChangeEmail.cshtml"));

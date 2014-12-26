@@ -5,15 +5,19 @@ using System.Text;
 using System.Threading.Tasks;
 using monitoR.Service.Interfaces;
 using Quartz;
+using monitoR.Service.Notifier;
+using PersistentObjectCachenet45;
 
 namespace monitoR.Service.Jobs
 {
     class CheckStoragePoolHealth : IJob
     {
         private readonly Func<IEnumerable<IStoragePool>> _getStoragePool;
+        private readonly INotifier _notification;
  
-        public CheckStoragePoolHealth(Func<IEnumerable<IStoragePool>> getStoragePool) {
+        public CheckStoragePoolHealth(Func<IEnumerable<IStoragePool>> getStoragePool, INotifier notification) {
             _getStoragePool = getStoragePool;
+            _notification = notification;
         }
 
         /// <summary>
@@ -40,8 +44,42 @@ namespace monitoR.Service.Jobs
                                                   });
 
             context.Put("anyUnhealthy", isAnyUnhealthy);
-
             context.Result = isAnyUnhealthy;
+
+
+            var previousStatus = PersistentObjectCache.ContainsAsync<StoragePoolHealthStatus>("StoragePoolHealthStatus").Result;
+            bool hasStatusChanged = false;
+            if (previousStatus) {
+                Console.WriteLine("Previous State");
+                var status = PersistentObjectCache.GetObjectAsync<StoragePoolHealthStatus>("StoragePoolHealthStatus", true).Result;
+                if (status.IsFailureState != isAnyUnhealthy) hasStatusChanged = true;
+            } else {
+                hasStatusChanged = true;
+            }
+
+            // Respond to a change
+            if (hasStatusChanged) {
+                Console.WriteLine("Status Changed");
+                var newStatus = new StoragePoolHealthStatus { IsFailureState = isAnyUnhealthy };
+                PersistentObjectCache.SetObjectAsync("StoragePoolHealthStatus", newStatus);
+
+                _notification.SendNotification("stateChange", new PoolStateChangeModel { IsFailureState = isAnyUnhealthy });
+            }
         }
     }
+
+    class StoragePoolHealthStatus
+    {
+        public bool IsFailureState { get; set; }
+
+    }
+
+    public class PoolStateChangeModel : IPoolStateChangeModel
+    {
+
+        public DiskHealthStatus NewHealthStatus { get; set; }
+
+        public bool IsFailureState { get; set; }
+    }
+
 }
